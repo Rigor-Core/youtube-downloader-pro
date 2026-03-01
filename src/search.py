@@ -2,10 +2,6 @@ import sys
 import os
 
 def search_youtube(query, limit=25, lang="es"):
-    """
-    Realiza una búsqueda súper rápida en YouTube usando yt-dlp como librería.
-    Devuelve una lista de diccionarios con title, id, url, duration y thumbnail.
-    """
     results = []
     try:
         import yt_dlp
