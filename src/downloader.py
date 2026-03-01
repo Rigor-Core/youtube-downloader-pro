@@ -52,15 +52,9 @@ class YoutubeDownloader:
         
         format_list = []
         if codec != "any":
-            # 1. First try: Best video with specific codec + preferred audio
-            format_list.append(f"bestvideo[height<={resolution}][fps<={fps}][vcodec^={codec}]+bestaudio")
-        
-        # 2. Fallback: Any video codec + preferred audio
+            format_list.append(f"bestvideo[height<={resolution}][fps<={fps}][vcodec^={codec}]+bestaudio")    
         format_list.append(f"bestvideo[height<={resolution}][fps<={fps}]+bestaudio")
-        
-        # 3. Final Fallback: Best combined format
-        format_list.append(f"best[height<={resolution}]")
-        
+        format_list.append(f"best[height<={resolution}]")     
         format_str = "/".join(format_list)
         
         ydl_opts = {
