@@ -1,63 +1,57 @@
-import subprocess
 import sys
+import os
 
 def search_youtube(query, limit=25, lang="es"):
     """
-    Realiza una búsqueda súper rápida en YouTube usando el CLI de yt-dlp.
+    Realiza una búsqueda súper rápida en YouTube usando yt-dlp como librería.
     Devuelve una lista de diccionarios con title, id, url, duration y thumbnail.
     """
     results = []
     try:
-        # Petición a yt-dlp: ID ||| Título ||| Duración
-        cmd = [
-            sys.executable, '-m', 'yt_dlp', 
-            f'ytsearch{limit}:{query}', 
-            '--flat-playlist', 
-            '--print', '%(id)s|||%(title)s|||%(duration_string)s',
-            '--no-warnings',
-            '--ignore-errors'
-        ]
+        import yt_dlp
         
-        # Ocultar ventana emergente en Windows
-        startupinfo = None
-        if sys.platform == 'win32':
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'extract_flat': True,
+            'ignoreerrors': True,
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            search_results = ydl.extract_info(f"ytsearch{limit}:{query}", download=False)
             
-        process = subprocess.Popen(
-            cmd, 
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.PIPE, 
-            text=True, 
-            encoding='utf-8', 
-            errors='ignore',
-            startupinfo=startupinfo
-        )
-        
-        stdout, _ = process.communicate()
-        
-        if not stdout:
-            return []
-
-        lines = stdout.strip().split('\n')
-        for line in lines:
-            try:
-                parts = line.split('|||')
-                if len(parts) >= 2:
-                    vid_id = parts[0].strip()
-                    title = parts[1].strip()
-                    duration = parts[2].strip() if len(parts) > 2 else "N/A"
+            if not search_results or 'entries' not in search_results:
+                return []
+            
+            for entry in search_results['entries']:
+                if not entry:
+                    continue
+                try:
+                    vid_id = entry.get('id', '')
+                    title = entry.get('title', '')
+                    duration = entry.get('duration')
+                    
+                    # Format duration
+                    if duration:
+                        mins, secs = divmod(int(duration), 60)
+                        hours, mins = divmod(mins, 60)
+                        if hours > 0:
+                            duration_str = f"{hours}:{mins:02d}:{secs:02d}"
+                        else:
+                            duration_str = f"{mins}:{secs:02d}"
+                    else:
+                        duration_str = "N/A"
                     
                     if vid_id and title:
                         results.append({
                             'title': title,
                             'thumbnail': f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg",
                             'url': f"https://www.youtube.com/watch?v={vid_id}",
-                            'duration': duration,
+                            'duration': duration_str,
                             'id': vid_id
                         })
-            except Exception:
-                continue
+                except Exception:
+                    continue
                 
     except Exception as e:
         print(f"[Search API Error] {e}")

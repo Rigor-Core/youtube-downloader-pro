@@ -27,22 +27,15 @@ class DownloaderApp:
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
         
+        # Available Options mappings
+        self.codec_map = {self.cfg._("codec_h264"): "avc", self.cfg._("codec_vp9"): "vp9", self.cfg._("codec_any"): "any"}
+
+        # UI Variables
         self.current_download_path = tk.StringVar(value=get_default_downloads_folder())
         self.url_var = tk.StringVar()
         self.resolution_var = tk.StringVar(value="1080")
         self.fps_var = tk.StringVar(value="60")
         self.display_codec_var = tk.StringVar(value=self.cfg._("codec_h264"))
-        
-        self.codec_map = {
-            self.cfg._("codec_h264"): "avc",
-            self.cfg._("codec_vp9"): "vp9",
-            self.cfg._("codec_any"): "any"
-        }
-        
-        self.lang_map = {
-            self.cfg._("lang_original"): "any"
-        }
-        self.display_lang_var = tk.StringVar(value=self.cfg._("lang_original"))
         
         # Debounce timer for size estimation
         self._size_timer = None
@@ -168,13 +161,9 @@ class DownloaderApp:
         codec_cb = ctk.CTkOptionMenu(settings_frame, variable=self.display_codec_var, values=list(self.codec_map.keys()), width=200)
         codec_cb.grid(row=0, column=5, padx=10, pady=15, sticky="w")
         
-        # Row 1: Audio Language and Estimated Size
-        ctk.CTkLabel(settings_frame, text=self.cfg._("lang_label")).grid(row=1, column=0, padx=10, pady=15, sticky="e")
-        self.lang_cb = ctk.CTkOptionMenu(settings_frame, variable=self.display_lang_var, values=list(self.lang_map.keys()), width=200)
-        self.lang_cb.grid(row=1, column=1, columnspan=3, padx=10, pady=15, sticky="w")
-        
+        # Row 1: Estimated Size
         self.size_label = ctk.CTkLabel(settings_frame, text=self.cfg._("size_label_dash"), text_color="gray")
-        self.size_label.grid(row=1, column=4, columnspan=2, padx=10, pady=15, sticky="w")
+        self.size_label.grid(row=1, column=0, columnspan=6, padx=10, pady=15, sticky="w")
 
         # Progress Section Frame
         progress_frame = ctk.CTkFrame(parent, fg_color="transparent")
@@ -265,47 +254,7 @@ class DownloaderApp:
                         
                         self.root.after(0, update_res_ui)
                     # --------------------------------------------------
-                    # --- Extract available languages dynamically ---
-                    available_langs = set()
-                    for f in formats:
-                        language = f.get('language')
-                        # Check strictly for audio tracks and non-null language strings
-                        if f.get('acodec') != 'none' and f.get('vcodec') == 'none' and language:
-                            available_langs.add(language)
-
-                    # Allowed language prefixes (Spanish, English, French, Portuguese, Russian)
-                    allowed_prefixes = ('es', 'en', 'fr', 'pt', 'ru')
-                    # Dictionary mapping full technical tags to human-readable ones
-                    lang_displays = {
-                        'es': 'Español', 'en': 'Inglés', 'fr': 'Francés', 
-                        'pt': 'Portugués', 'ru': 'Ruso'
-                    }
-
-                    new_lang_map = {self.cfg._("lang_original"): "any"}
-        # Filter and build the readable map
-                    for lang_code in available_langs:
-                        if lang_code.startswith(allowed_prefixes):
-                            prefix = lang_code[:2]
-                            fancy_name = lang_displays.get(prefix, prefix.upper())
-                            # Extra details if available (e.g. es-419 -> Español (es-419))
-                            if len(lang_code) > 2:
-                                fancy_name += f" ({lang_code})"
-                            new_lang_map[fancy_name] = lang_code
-
-                    self.lang_map = new_lang_map
-
-                    # Update the UI combobox dynamically
-                    def update_lang_ui():
-                        current_lang_display = self.display_lang_var.get()
-                        display_options = list(self.lang_map.keys())
-                        self.lang_cb.configure(values=display_options)
-                        
-                        # Preserve selection if it still exists in the new mapping, otherwise fallback
-                        if current_lang_display not in display_options:
-                            self.display_lang_var.set(self.cfg._("lang_original"))
-
-                    self.root.after(0, update_lang_ui)
-                    # --------------------------------------------------                    
+                    # --------------------------------------------------
                     
                     v_size = 0
                     a_size = 0
@@ -349,8 +298,6 @@ class DownloaderApp:
         fps = self.fps_var.get()
         display_codec = self.display_codec_var.get()
         codec = self.codec_map.get(display_codec, "avc")
-        
-        audio_lang = self.lang_map.get(self.display_lang_var.get(), "any")
 
         # Configure download button for cancel toggle
         self.download_btn.configure(text=self.cfg._("btn_cancel"), command=self._cancel_download)
@@ -361,7 +308,7 @@ class DownloaderApp:
         # Switch to download tab automatically
         self.tabview.set(self.cfg._("tab_downloader"))
 
-        self.downloader.start_download_thread(url, download_path, resolution, fps, codec, audio_lang, app_lang=self.cfg.get_lang())
+        self.downloader.start_download_thread(url, download_path, resolution, fps, codec, app_lang=self.cfg.get_lang())
 
     def _on_progress(self, percent, speed, eta, filename):
         def update_ui():

@@ -12,26 +12,20 @@ venv.bak/
 
 # Build artifacts
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
+*.spec
 *.egg-info/
 .installed.cfg
 *.egg
 
-# Specific ignores for the project
+# Binaries (downloaded during build)
+bin/
+
+# Project specific
 config.json
+icon.ico
 *.mp4
 *.webm
 *.m4a
 *.part
 *.ytdl
-*.json
-bin/deno.exe
-bin/*.exe

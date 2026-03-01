@@ -38,7 +38,7 @@ class YoutubeDownloader:
 
 
 
-    def download_video(self, url, download_path, resolution="1080", fps="60", codec="avc", audio_lang="es", app_lang="es"):
+    def download_video(self, url, download_path, resolution="1080", fps="60", codec="avc", app_lang="es"):
         self.is_downloading = True
         self.cancel_requested = False
         
@@ -47,22 +47,19 @@ class YoutubeDownloader:
         # Audio: best audio available
         
         # Codec logic: 'avc' indicates H264 (standar), 'vp9' indicates VP9 etc.
-        # Audio logic: Exact language code match from the dynamic dropdown.
         # Fallback to ANY video codec if the specific one (like 'avc') is not available, avoiding 
         # a complete failure where it just downloads a pre-merged webm (often English/audio only).
-        
-        audio_spec = f"bestaudio[language={audio_lang}]/bestaudio" if audio_lang != "any" else "bestaudio"
         
         format_list = []
         if codec != "any":
             # 1. First try: Best video with specific codec + preferred audio
-            format_list.append(f"bestvideo[height<={resolution}][fps<={fps}][vcodec^={codec}]+{audio_spec}")
+            format_list.append(f"bestvideo[height<={resolution}][fps<={fps}][vcodec^={codec}]+bestaudio")
         
-        # 2. Second try: Best video with ANY codec + preferred audio (this fixes MrBeast 4k avc issue)
-        format_list.append(f"bestvideo[height<={resolution}][fps<={fps}]+{audio_spec}")
+        # 2. Fallback: Any video codec + preferred audio
+        format_list.append(f"bestvideo[height<={resolution}][fps<={fps}]+bestaudio")
         
-        # 3. Third try: Absolute fallback to whatever is best under the resolution
-        format_list.append(f"best[height<={resolution}]/best")
+        # 3. Final Fallback: Best combined format
+        format_list.append(f"best[height<={resolution}]")
         
         format_str = "/".join(format_list)
         
@@ -96,7 +93,7 @@ class YoutubeDownloader:
             self.is_downloading = False
             self.cancel_requested = False
 
-    def start_download_thread(self, url, download_path, resolution, fps, codec, audio_lang, app_lang="es"):
+    def start_download_thread(self, url, download_path, resolution, fps, codec, app_lang="es"):
         if self.is_downloading:
             if self.error_callback:
                 self.error_callback("Ya hay una descarga en curso.")
@@ -104,7 +101,7 @@ class YoutubeDownloader:
 
         thread = threading.Thread(
             target=self.download_video,
-            args=(url, download_path, resolution, fps, codec, audio_lang, app_lang),
+            args=(url, download_path, resolution, fps, codec, app_lang),
             daemon=True
         )
         thread.start()
