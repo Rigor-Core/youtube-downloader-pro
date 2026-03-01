@@ -3,10 +3,10 @@
   <p>Una aplicación de escritorio rápida, moderna y en múltiples idiomas para descargar videos y audios de YouTube con la máxima calidad.</p>
 </div>
 
-![Menú de Descarga](p1.png)
+![Menú de Descarga](photos/p1.jpeg)
 *Interfaz principal del descargador.*
 
-![Menú de Búsqueda](p2.png)
+![Menú de Búsqueda](photos/p2.jpeg)
 *Buscador integrado súper veloz.*
 
 ---

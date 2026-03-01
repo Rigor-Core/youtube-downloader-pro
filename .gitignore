@@ -35,4 +35,3 @@ config.json
 *.json
 bin/deno.exe
 bin/*.exe
-photos/
