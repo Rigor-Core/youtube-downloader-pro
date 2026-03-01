@@ -25,7 +25,6 @@ PyInstaller.__main__.run([
     '--windowed',
     '--onefile',
     '--clean',
-    '--icon=icon.ico',
     '--upx-dir=bin',
     
     # Exclude unused libraries to save space
