@@ -71,7 +71,6 @@ pip install pyinstaller
 Coloca los siguientes archivos en la carpeta `bin/` del proyecto:
 - `ffmpeg.exe` y `ffprobe.exe` — desde [gyan.dev](https://www.gyan.dev/ffmpeg/builds/)
 - `upx.exe` (opcional, para comprimir) — desde [upx.github.io](https://upx.github.io/)
-- `icon.ico` — en la raíz del proyecto
 
 ### Compilar
 ```bash
