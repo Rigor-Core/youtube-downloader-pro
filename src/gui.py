@@ -78,7 +78,6 @@ class DownloaderApp:
         self._build_downloader_tab(self.tabview.tab(self.cfg._("tab_downloader")))
         self._build_search_tab(self.tabview.tab(self.cfg._("tab_search")))
         
-        # Rigor-Core Watermark
         watermark = ctk.CTkLabel(self.root, text="Rigor-Core", text_color="gray50", font=ctk.CTkFont(size=12, weight="bold"))
         watermark.place(relx=0.02, rely=0.98, anchor="sw")
 
